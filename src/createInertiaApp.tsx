@@ -30,29 +30,37 @@ export type SetupOptions<ElementType, SharedProps extends PageProps> = {
   props: InertiaAppProps<SharedProps>
 }
 
-type InertiaAppOptionsForCSR<SharedProps extends PageProps> = CreateInertiaAppOptionsForCSR<
-  SharedProps,
-  ComponentResolver,
-  SetupOptions<HTMLElement, SharedProps>,
-  void,
-  HonoInertiaAppConfig
+type InertiaAppOptionsForCSR<SharedProps extends PageProps> = Omit<
+  CreateInertiaAppOptionsForCSR<
+    SharedProps,
+    ComponentResolver,
+    SetupOptions<HTMLElement, SharedProps>,
+    void,
+    HonoInertiaAppConfig
+  >,
+  'setup'
 > &
   Pick<InertiaAppProps<SharedProps>, 'onHeadUpdate' | 'defaultLayout'> & {
     layout?: InertiaAppProps<SharedProps>['defaultLayout']
+    setup?: (options: SetupOptions<HTMLElement, SharedProps>) => void
   }
 
-type RenderToString = (element: Child) => string
+type RenderToString = typeof honoRenderToString
 
-type InertiaAppOptionsForSSR<SharedProps extends PageProps> = CreateInertiaAppOptionsForSSR<
-  SharedProps,
-  ComponentResolver,
-  SetupOptions<null, SharedProps>,
-  Child,
-  HonoInertiaAppConfig
+type InertiaAppOptionsForSSR<SharedProps extends PageProps> = Omit<
+  CreateInertiaAppOptionsForSSR<
+    SharedProps,
+    ComponentResolver,
+    SetupOptions<null, SharedProps>,
+    Child,
+    HonoInertiaAppConfig
+  >,
+  'setup'
 > &
   Pick<InertiaAppProps<SharedProps>, 'onHeadUpdate' | 'defaultLayout'> & {
     layout?: InertiaAppProps<SharedProps>['defaultLayout']
-    render?: RenderToString
+    render: RenderToString
+    setup?: (options: SetupOptions<null, SharedProps>) => Child | void
   }
 
 type InertiaAppOptionsAuto<SharedProps extends PageProps> = Omit<
@@ -65,7 +73,7 @@ type InertiaAppOptionsAuto<SharedProps extends PageProps> = Omit<
   'setup'
 > & {
   page?: Page<SharedProps>
-  render?: RenderToString
+  render?: undefined
   setup?: (options: SetupOptions<HTMLElement | null, SharedProps>) => Child | void
 } & Pick<InertiaAppProps<SharedProps>, 'onHeadUpdate' | 'defaultLayout'> & {
     layout?: InertiaAppProps<SharedProps>['defaultLayout']
