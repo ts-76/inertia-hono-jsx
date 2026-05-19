@@ -53,6 +53,7 @@
     "dev:build": "node build.js --watch",
     "dev:types": "tsc --watch --preserveWatchOutput",
     "es2022-check": "pnpm build:with-deps && es-check es2022 \"dist/index.js\" --checkFeatures --module --noCache --verbose",
+    "test:ssr": "pnpm build && node --test tests/ssr/form-ref.test.mjs",
     "prepublishOnly": "pnpm build"
   },
   "devDependencies": {

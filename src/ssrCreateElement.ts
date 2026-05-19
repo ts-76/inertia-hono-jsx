@@ -18,11 +18,29 @@ import {
 type ElementTag = string | Function
 type ElementProps = Record<string, any>
 
-const createElement = honoCreateElement as unknown as (
+const isServerHostElement = (tag: ElementTag): tag is string => typeof tag === 'string' && typeof document === 'undefined'
+
+const removeServerOnlyRef = (tag: ElementTag, props: ElementProps | null): ElementProps | null => {
+  if (!props || !isServerHostElement(tag) || !('ref' in props)) {
+    return props
+  }
+
+  const { ref: _ref, ...rest } = props
+
+  return rest
+}
+
+const createElementWithChildSupport = honoCreateElement as unknown as (
   tag: ElementTag,
   props: ElementProps | null,
   ...children: Child[]
 ) => JSXNode
+
+const createElement = (
+  tag: ElementTag,
+  props: ElementProps | null,
+  ...children: Child[]
+) => createElementWithChildSupport(tag, removeServerOnlyRef(tag, props), ...children)
 
 export { createElement, forwardRef, Fragment }
 export type { Child, JSX, JSXNode, RefObject }
