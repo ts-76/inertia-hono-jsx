@@ -4,17 +4,24 @@ on:
   push:
     branches:
       - main
+  release:
+    types:
+      - published
   workflow_dispatch:
-
-permissions:
-  contents: write
-  pull-requests: write
-  id-token: write
+    inputs:
+      publish_ref:
+        description: Existing release tag to publish to npm, for example v0.2.2 or refs/tags/v0.2.2. Leave empty to run release-please.
+        required: false
+        type: string
 
 jobs:
-  release:
-    name: Release
+  release-please:
+    name: Release Please
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish_ref == '') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Create or update release PR
@@ -24,29 +31,44 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
+  publish:
+    name: Publish to npm
+    if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.publish_ref != '') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Validate publish ref
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          PUBLISH_REF: ${{ inputs.publish_ref }}
+        run: |
+          if [[ ! "$PUBLISH_REF" =~ ^(refs/tags/)?v[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::publish_ref must be an existing release tag like v0.2.2 or refs/tags/v0.2.2."
+            exit 1
+          fi
+
       - name: Checkout
-        if: ${{ steps.release.outputs.release_created }}
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.publish_ref }}
 
       - name: Setup Node.js
-        if: ${{ steps.release.outputs.release_created }}
         uses: actions/setup-node@v4
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
       - name: Enable pnpm
-        if: ${{ steps.release.outputs.release_created }}
         run: corepack enable
 
       - name: Install dependencies
-        if: ${{ steps.release.outputs.release_created }}
         run: pnpm install --no-frozen-lockfile
 
       - name: Build
-        if: ${{ steps.release.outputs.release_created }}
         run: pnpm build
 
       - name: Publish
-        if: ${{ steps.release.outputs.release_created }}
         run: npm publish --access public
