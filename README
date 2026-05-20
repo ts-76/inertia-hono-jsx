@@ -203,9 +203,10 @@ createServer((page) =>
 )
 ```
 
-Pass both `page` and `render` from SSR entries. The `render` option is the public SSR
-discriminator for `createInertiaApp()`; in the TypeScript API, passing `page` without `render`
-does not select the SSR overload.
+> [!NOTE]
+> SSR entries should pass both `page` and `render`. The `render` option is the public SSR
+> discriminator for `createInertiaApp()`; in the TypeScript API, passing `page` without `render`
+> does not select the SSR overload.
 
 SSR support is intentionally limited to what Hono's `renderToString()` supports. Async components are not supported, and Hono's DOM hydration is render-like rather than React's strict hydration model.
 
