@@ -21,6 +21,7 @@ import {
   createContext,
   createElement,
   startTransition,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -169,9 +170,9 @@ const Form = ((
     form.transform(getTransformedData)
 
     const formElement = useRef<HTMLFormElement>(null)
-    const setFormElement = (element: HTMLFormElement | null) => {
+    const setFormElement = useCallback((element: HTMLFormElement | null) => {
       formElement.current = element
-    }
+    }, [])
     const fallbackRef = useRef<FormComponentRef<FormDataRecord> | null>(null)
     const imperativeRef = ref ?? fallbackRef
 
