@@ -1,6 +1,6 @@
 {
   "name": "@ts-76/inertia-hono-jsx",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "license": "MIT",
   "description": "A Hono JSX adapter for Inertia.js",
   "homepage": "https://github.com/ts-76/inertia-hono-jsx#readme",
