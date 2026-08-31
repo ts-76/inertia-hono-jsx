@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4](https://github.com/ts-76/inertia-hono-jsx/compare/v0.2.3...v0.2.4) (2026-08-31)
+
+
+### Bug Fixes
+
+* omit Form ref during SSR ([#4](https://github.com/ts-76/inertia-hono-jsx/issues/4)) ([89db71d](https://github.com/ts-76/inertia-hono-jsx/commit/89db71d4249294b8f130e6793b6ed1d4b71f2b80))
+
 ## [0.2.3](https://github.com/ts-76/inertia-hono-jsx/compare/v0.2.2...v0.2.3) (2026-05-20)
 
 
