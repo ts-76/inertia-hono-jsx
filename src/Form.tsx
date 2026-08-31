@@ -21,6 +21,7 @@ import {
   createContext,
   createElement,
   startTransition,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -169,6 +170,9 @@ const Form = ((
     form.transform(getTransformedData)
 
     const formElement = useRef<HTMLFormElement>(null)
+    const setFormElement = useCallback((element: HTMLFormElement | null) => {
+      formElement.current = element
+    }, [])
     const fallbackRef = useRef<FormComponentRef<FormDataRecord> | null>(null)
     const imperativeRef = ref ?? fallbackRef
 
@@ -410,7 +414,7 @@ const Form = ((
       'form',
       {
         ...props,
-        ref: formElement,
+        ref: setFormElement,
         action: isUrlMethodPair(action) ? action.url : action,
         method: resolvedMethod,
         onSubmit: (event: SubmitEvent) => {
