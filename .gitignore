@@ -12,3 +12,14 @@ sample/*.log
 
 *.tgz
 .DS_Store
+
+tests/browser/.build/
+test-results/
+playwright-report/
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+*.gate.lock*

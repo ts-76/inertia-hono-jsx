@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "inertia_hono_jsx",
+  "project_id": "08bbaf02-e273-4b13-9d01-4e8eb62d62e4"
+}

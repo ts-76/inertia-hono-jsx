@@ -5,17 +5,24 @@
     "moduleResolution": "Bundler",
     "strict": true,
     "skipLibCheck": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "types": ["vite/client"],
-    "baseUrl": ".",
-    "paths": {
-      "@hono/inertia": ["./node_modules/@hono/inertia/dist/index.d.ts"],
-      "@ts-76/inertia-hono-jsx": ["../src/index.ts"]
-    },
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
+    "types": [
+      "vite/client"
+    ],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx/dom",
     "noImplicitThis": false
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

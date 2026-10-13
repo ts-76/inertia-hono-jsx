@@ -186,6 +186,10 @@ export default async function createInertiaApp<SharedProps extends PageProps = P
 
   const initialPage = page || getInitialPageFromDOM<Page<SharedProps>>(id)!
 
+  if (isServer) {
+    return buildApp(initialPage, render || honoRenderToString)
+  }
+
   const [initialComponent] = await Promise.all([
     resolveComponent(initialPage.component, initialPage),
     router.decryptHistory().catch(() => {}),
@@ -196,12 +200,8 @@ export default async function createInertiaApp<SharedProps extends PageProps = P
     initialComponent,
     resolveComponent,
     titleCallback: title,
-    onHeadUpdate: isServer ? onHeadUpdate || (() => {}) : onHeadUpdate,
+    onHeadUpdate,
     defaultLayout: effectiveLayout,
-  }
-
-  if (isServer) {
-    return buildApp(initialPage, render || honoRenderToString)
   }
 
   const el = document.getElementById(id)!

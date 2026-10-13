@@ -10,8 +10,8 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
-    "@hono/inertia": "^0.2.0",
-    "@ts-76/inertia-hono-jsx": "^0.1.0",
+    "@hono/inertia": "^0.8.0",
+    "@ts-76/inertia-hono-jsx": "file:..",
     "hono": "^4.12.16"
   },
   "devDependencies": {

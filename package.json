@@ -53,20 +53,22 @@
     "dev:build": "node build.js --watch",
     "dev:types": "tsc --watch --preserveWatchOutput",
     "es2022-check": "pnpm build:with-deps && es-check es2022 \"dist/index.js\" --checkFeatures --module --noCache --verbose",
-    "test:ssr": "pnpm build && node --test tests/form-ssr.test.mjs",
-    "test:typecheck": "tsc --project tsconfig.typecheck.json",
+    "test:ssr": "pnpm build && node --test tests/*-ssr.test.mjs tests/middleware.test.mjs",
+    "test:typecheck": "tsc --project tsconfig.typecheck.json && tsc --project tests/typecheck/registry/tsconfig.json",
+    "test:browser": "pnpm build && playwright test",
     "prepublishOnly": "pnpm build"
   },
   "devDependencies": {
-    "@hono/inertia": "^0.2.0",
+    "@hono/inertia": "^0.8.0",
+    "@playwright/test": "^1.64.0",
     "es-check": "^9.6.1",
     "esbuild": "^0.27.3",
     "esbuild-node-externals": "^1.20.1",
-    "hono": "^4.12.20",
+    "hono": "^4.13.13",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@hono/inertia": "^0.2.0",
+    "@hono/inertia": "^0.8.0",
     "hono": "^4.12.20"
   },
   "dependencies": {

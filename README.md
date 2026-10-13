@@ -5,10 +5,9 @@ The Hono JSX adapter for Inertia.js.
 This is an experimental, community-scoped package. It is not an official Inertia adapter package.
 
 > [!NOTE]
-> This package is intentionally named for Hono JSX, but `hono/jsx` support is partial. Browser
-> rendering targets `hono/jsx/dom` for `createRoot` and `hydrateRoot`, while hooks, context, and JSX
-> types come from `hono/jsx`. Server-only `hono/jsx` usage is limited to the SSR path documented
-> below and does not promise React-style strict hydration fidelity.
+> Browser rendering uses `hono/jsx/dom` for `createRoot` and `hydrateRoot`. Page components can be
+> compiled with either `hono/jsx` or `hono/jsx/dom` in the browser; hooks and context come from
+> `hono/jsx`. SSR must compile the entire page/layout tree with `hono/jsx`, as documented below.
 
 This package is a client-side adapter for apps that render interactive pages with `hono/jsx/dom`.
 It delegates the Inertia protocol, visits, history, progress, partial reloads, remembered state, and
@@ -23,7 +22,7 @@ pnpm add @ts-76/inertia-hono-jsx @inertiajs/core hono
 For Hono server integration and page props typing, install `@hono/inertia` as well:
 
 ```sh
-pnpm add @hono/inertia
+pnpm add @hono/inertia@^0.8.0
 ```
 
 ```tsx
@@ -40,6 +39,18 @@ createInertiaApp({
 
 Without a custom `setup`, the adapter mounts `<App />` for you. It uses `hydrateRoot` when the root
 element has `data-server-rendered`, otherwise it uses `createRoot`.
+
+For browser page components, set `jsx: "react-jsx"` and `jsxImportSource: "hono/jsx/dom"` in your
+TypeScript/build configuration. `jsxImportSource: "hono/jsx"` also works in the browser.
+
+| Integration | Supported scope |
+| --- | --- |
+| `hono/jsx` | Browser pages, hooks/context, and synchronous SSR |
+| `hono/jsx/dom` | Browser pages, `createRoot`, and render-like `hydrateRoot` |
+| `@hono/inertia` `0.8.x` | Initial HTML/JSON, shared and lazy props, partial/deferred props, merge/scroll metadata, redirects and asset versions |
+
+The server middleware is the separate `@hono/inertia` package, not a `hono/inertia` export of Hono
+core. Earlier `0.2.x` middleware versions are no longer in this adapter's peer dependency range.
 
 ## API
 
@@ -155,6 +166,10 @@ The generated `InertiaPages` constrains valid page names, and `@hono/inertia`'s 
 provides the props type from `c.render()`. `InertiaPageProps` remains available as an explicit
 override or fallback when an app cannot expose typed Hono route output.
 
+With `@hono/inertia` `0.8.x`, this includes props returned by `inertia({ share: ... })`, resolved
+lazy props, and page props that override shared values. `AppRegistry` can also be augmented manually
+without generating an `InertiaPages` registry.
+
 Avoid `usePage<{ ... }>()` style client-side prop annotations. Page props should come from a page
 name registered by `@hono/inertia`, not from a second client-only definition.
 
@@ -171,6 +186,12 @@ The split is:
   forms, head updates, layouts, remembered state, polling, prefetch state, deferred props, and
   viewport-triggered reloads.
 
+Use the middleware's `defer()` and `scroll()` helpers with the adapter's `Deferred` and
+`InfiniteScroll` components. The middleware produces the page metadata and the client core processes
+the follow-up requests and merge behavior. See `sample/` for a runnable integration using these
+helpers. Form endpoints should accept JSON requests (`c.req.json()`) as well as multipart requests
+(`c.req.parseBody()`), since the client core selects the body format based on the submitted data.
+
 Initial page data should use Inertia's JSON script format, for example:
 
 ```html
@@ -186,6 +207,7 @@ This adapter exposes `@ts-76/inertia-hono-jsx/server`, which re-exports the Iner
 `createInertiaApp()` can also be used in a server entry with Hono's `renderToString()`:
 
 ```tsx
+/** @jsxImportSource hono/jsx */
 import { createInertiaApp } from '@ts-76/inertia-hono-jsx'
 import createServer from '@ts-76/inertia-hono-jsx/server'
 import { renderToString } from 'hono/jsx/dom/server'
@@ -208,6 +230,12 @@ createServer((page) =>
 > discriminator for `createInertiaApp()`; in the TypeScript API, passing `page` without `render`
 > does not select the SSR overload.
 
+The SSR build must use `jsxImportSource: "hono/jsx"` for **all** imported pages and layouts, not
+just the entry file. Hono's `renderToString` uses server JSX nodes; DOM JSX nodes produced by
+`hono/jsx/dom/jsx-runtime` cannot be passed directly to it. If your browser build uses
+`hono/jsx/dom`, compile the same sources separately with `hono/jsx` for SSR. The browser test fixture
+in `tests/browser/server.mjs` demonstrates this split.
+
 SSR support is intentionally limited to what Hono's `renderToString()` supports. Async components are not supported, and Hono's DOM hydration is render-like rather than React's strict hydration model.
 
 Supported SSR behavior includes the initial page body, `usePage()` context, `Head`, and simple
@@ -216,9 +244,20 @@ React-style strict hydration.
 
 ## Tested behavior
 
-The package test app covers initial boot, links, page props, partial reload headers, head updates,
-layout props, remembered state, forms, cancellation, polling, prefetch state, deferred props,
-viewport-triggered reloads, infinite scroll, and limited SSR.
+The automated tests run against the package's built JavaScript:
+
+- `pnpm test:ssr`: SSR page context, Head, Form, layouts, concurrent requests, safe page JSON,
+  and real middleware HTML/JSON, partial/deferred responses, merge/scroll metadata, redirects and
+  asset version conflicts.
+- `pnpm test:typecheck`: SSR/CSR overloads and middleware page props, including shared/lazy props,
+  overrides, and both manual and generated registry shapes.
+- `pnpm test:browser`: Chromium with pages compiled under both JSX runtimes, covering boot,
+  interactive hooks, shared props, partial/deferred reloads, Head, links, Form/useForm, SSR boot,
+  and InfiniteScroll append/prepend.
+
+Install the browser once with `pnpm exec playwright install chromium`. PR CI runs the suite with
+Hono `4.12.20` and `4.13.13`. The older `test-app/` pages remain illustrative fixtures; remembered
+state, cancellation, polling, prefetch and viewport-triggered reloads are outside this automated suite.
 
 ## Non-goals
 

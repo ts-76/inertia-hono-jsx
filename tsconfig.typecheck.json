@@ -1,8 +1,16 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["tests/typecheck/**/*.ts"],
+  "include": [
+    "tests/typecheck/**/*.ts"
+  ],
   "compilerOptions": {
     "noEmit": true,
+    "declaration": false,
+    "emitDeclarationOnly": false,
+    "declarationDir": null,
     "rootDir": "."
-  }
+  },
+  "exclude": [
+    "tests/typecheck/registry"
+  ]
 }

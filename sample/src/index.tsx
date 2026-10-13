@@ -1,6 +1,6 @@
 /** @jsxImportSource hono/jsx */
-import { inertia, serializePage, type PageObject, type RootView } from '@hono/inertia'
-import { Hono, type Context, type TypedResponse } from 'hono'
+import { defer, inertia, scroll, serializePage, type RootView } from '@hono/inertia'
+import { Hono } from 'hono'
 import { renderToString } from 'hono/jsx/dom/server'
 import { Link as ViteLink, Script, ViteClient } from 'vite-ssr-components/hono'
 
@@ -20,24 +20,13 @@ const scrollUsers = Array.from({ length: 24 }, (_, index) => ({
 function paginateScrollUsers(page: number, perPage = 8, pageName = 'page') {
   const start = (page - 1) * perPage
   const data = scrollUsers.slice(start, start + perPage)
-  const previousPage = page > 1 ? page - 1 : null
-  const nextPage = start + perPage < scrollUsers.length ? page + 1 : null
-
-  return {
-    page: {
-      current_page: page,
-      data,
-      per_page: perPage,
-      total: scrollUsers.length,
-    },
-    scrollProp: {
-      pageName,
-      previousPage,
-      nextPage,
-      currentPage: page,
-      reset: false,
-    },
-  }
+  return scroll({
+    data,
+    currentPage: page,
+    lastPage: Math.ceil(scrollUsers.length / perPage),
+    pageName,
+    matchOn: 'id',
+  })
 }
 
 const rootView: RootView = (page) => `<!doctype html>
@@ -56,53 +45,15 @@ const rootView: RootView = (page) => `<!doctype html>
   </body>
 </html>`
 
-type PageResponseWithExtras<
-  Component extends string,
-  Props extends Record<string, unknown>,
-  Extras extends Record<string, unknown>,
-> = Response & TypedResponse<PageObject<Props> & { component: Component; props: Props } & Extras, 200, 'json'>
-
-function renderPageWithExtras<
-  Component extends string,
-  Props extends Record<string, unknown>,
-  Extras extends Record<string, unknown>,
->(
-  c: Context,
-  component: Component,
-  props: Props,
-  extras: Extras,
-): PageResponseWithExtras<Component, Props, Extras> {
-  const url = new URL(c.req.url)
-  const page = {
-    component,
-    props,
-    url: url.pathname + url.search,
-    version,
-    ...extras,
-  }
-
-  if (c.req.header('x-inertia')) {
-    return c.json(page, 200, {
-      'X-Inertia': 'true',
-      Vary: 'X-Inertia',
-    }) as PageResponseWithExtras<Component, Props, Extras>
-  }
-
-  return c.html(rootView(page, c)) as PageResponseWithExtras<Component, Props, Extras>
-}
-
 const app = new Hono()
   .use(inertia({ version, rootView }))
-  .get('/', (c) => {
-    const partialData = c.req.header('x-inertia-partial-data')?.split(',') ?? []
-    const wantsStats = partialData.includes('stats')
-
-    return c.render('Home', {
+  .get('/', (c) =>
+    c.render('Home', {
       message: 'Hello from a Hono Vite server',
-      ...(wantsStats ? { stats: { visits: 42 } } : {}),
+      stats: defer(() => ({ visits: 42 })),
       users,
-    })
-  })
+    }),
+  )
   .get('/users', (c) =>
     c.render('Users/Index', {
       users,
@@ -125,7 +76,9 @@ const app = new Hono()
     }),
   )
   .post('/adapter/form/success', async (c) => {
-    const body = await c.req.parseBody({ all: true })
+    const body = c.req.header('Content-Type')?.includes('application/json')
+      ? await c.req.json<Record<string, unknown>>()
+      : await c.req.parseBody({ all: true })
 
     return c.render('Adapter/Form', {
       submitted: body,
@@ -135,7 +88,9 @@ const app = new Hono()
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     return c.render('Adapter/Form', {
-      submitted: await c.req.parseBody({ all: true }),
+      submitted: c.req.header('Content-Type')?.includes('application/json')
+        ? await c.req.json<Record<string, unknown>>()
+        : await c.req.parseBody({ all: true }),
     })
   })
   .get('/adapter/head', (c) => c.render('Adapter/HeadKeys'))
@@ -145,23 +100,11 @@ const app = new Hono()
     const manual = paginateScrollUsers(manualPage, 8, 'manualPage')
     const auto = paginateScrollUsers(autoPage, 6, 'autoPage')
 
-    return renderPageWithExtras(
-      c,
-      'Adapter/InfiniteReverse',
-      {
-        manualUsers: manual.page,
-        autoUsers: auto.page,
-      },
-      {
-        scrollProps: {
-          manualUsers: manual.scrollProp,
-          autoUsers: auto.scrollProp,
-        },
-        mergeProps: ['autoUsers.data'],
-        prependProps: ['manualUsers.data'],
-        matchPropsOn: ['autoUsers.data.id', 'manualUsers.data.id'],
-      },
-    )
+    return c.render('Adapter/InfiniteReverse', {
+      manualPage,
+      manualUsers: manual,
+      autoUsers: auto,
+    })
   })
 
 export default app
