@@ -1,0 +1,5 @@
+{
+  "extends": "../../../tsconfig.typecheck.json",
+  "include": ["../page-props.test.ts", "pages.gen.ts"],
+  "exclude": []
+}

@@ -19,8 +19,11 @@ importers:
         version: 2.0.0
     devDependencies:
       '@hono/inertia':
-        specifier: ^0.2.0
-        version: 0.2.0(hono@4.12.20)
+        specifier: ^0.8.0
+        version: 0.8.0(hono@4.13.13)
+      '@playwright/test':
+        specifier: ^1.64.0
+        version: 1.64.0
       es-check:
         specifier: ^9.6.1
         version: 9.6.4
@@ -31,8 +34,8 @@ importers:
         specifier: ^1.20.1
         version: 1.22.0(esbuild@0.27.7)
       hono:
-        specifier: ^4.12.20
-        version: 4.12.20
+        specifier: ^4.13.13
+        version: 4.13.13
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
@@ -195,8 +198,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@hono/inertia@0.2.0':
-    resolution: {integrity: sha512-pqwHs/lHQYlUPRxOx3OWwx6XKAQ4xKMcYWhB/fEg8Pef5gR+qO7jJkDnnR1bqsJa2Z0xP8Es4xjhZk1/gz2ZEA==}
+  '@hono/inertia@0.8.0':
+    resolution: {integrity: sha512-7tTeoDJ3VHM590MPKh9W07UomcpyQvcRehAjX9JfK7OeT3hWENWBRdv9o4sdEr/g4UXCBjrSBpiL3Xg56Wo7AA==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       hono: '>=4.0.0'
@@ -234,6 +237,11 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@playwright/test@1.64.0':
+    resolution: {integrity: sha512-oTN9FNYuN6bqQMwiho6jJKLCG2/QOYCixGXuCjRmzOq23eODeukuY2XiAVoVpAECbuezMt1MHQjAiQxK8F+Y+g==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   acorn@8.16.0:
     resolution: {integrity: sha512-UVJyE9MttOsBQIDKw1skb9nAwQuR5wuGD3+82K6JgJlm/Y+KI92oNsMNGZCYdDsVtRHSak0pcV5Dno5+4jh9sw==}
@@ -282,8 +290,8 @@ packages:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
 
-  hono@4.12.20:
-    resolution: {integrity: sha512-mOdYP1JU3//KG4ukutyI5zi2LOjTGMTVwpdaEi+tg2s+Cn2zx8Q1+/b3Xr1f5ynCWophNNTwY6xRzcCTT5W2kA==}
+  hono@4.13.13:
+    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
     engines: {node: '>=16.9.0'}
 
   is-extglob@2.1.1:
@@ -317,6 +325,16 @@ packages:
   picomatch@2.3.2:
     resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
     engines: {node: '>=8.6'}
+
+  playwright-core@1.64.0:
+    resolution: {integrity: sha512-T9r+MZkTECl2+oUcZ26YgZzTrYidTsIhYYkJix+6iDOymOb1FB2RLLSOxRGnZGv5DStt+aduIVbt+E8WygXYpg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.64.0:
+    resolution: {integrity: sha512-kVzTnYFYEyQ9RGzBjNCd2+yEqWmVbxl3AHPynv3qQ6JTjv4a+kwRcnqQwIpuP3NnrnIrE/Q6wWAIAvMfIE2/Yg==}
+    engines: {node: '>=20'}
+    hasBin: true
 
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
@@ -417,9 +435,9 @@ snapshots:
   '@esbuild/win32-x64@0.27.7':
     optional: true
 
-  '@hono/inertia@0.2.0(hono@4.12.20)':
+  '@hono/inertia@0.8.0(hono@4.13.13)':
     dependencies:
-      hono: 4.12.20
+      hono: 4.13.13
 
   '@inertiajs/core@3.1.0':
     dependencies:
@@ -447,6 +465,10 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@playwright/test@1.64.0':
+    dependencies:
+      playwright: 1.64.0
 
   acorn@8.16.0: {}
 
@@ -517,7 +539,7 @@ snapshots:
     dependencies:
       is-glob: 4.0.3
 
-  hono@4.12.20: {}
+  hono@4.13.13: {}
 
   is-extglob@2.1.1: {}
 
@@ -539,6 +561,12 @@ snapshots:
       picomatch: 2.3.2
 
   picomatch@2.3.2: {}
+
+  playwright-core@1.64.0: {}
+
+  playwright@1.64.0:
+    dependencies:
+      playwright-core: 1.64.0
 
   queue-microtask@1.2.3: {}
 

@@ -13,7 +13,7 @@ const InfiniteReverse: PageComponent<'Adapter/InfiniteReverse'> = (props) => {
 
       <section>
         <h2>Manual reverse mode</h2>
-        <p>Starts from page {props.manualUsers.current_page}. Click the button to prepend older pages.</p>
+        <p>Starts from page {props.manualPage}. Click the button to prepend older pages.</p>
         <InfiniteScroll
           data="manualUsers"
           manual
@@ -30,7 +30,7 @@ const InfiniteReverse: PageComponent<'Adapter/InfiniteReverse'> = (props) => {
           }
         >
           <ul>
-            {props.manualUsers.data.map((user) => (
+            {props.manualUsers.map((user) => (
               <li key={user.id}>Manual {user.name}</li>
             ))}
           </ul>
@@ -68,7 +68,7 @@ const InfiniteReverse: PageComponent<'Adapter/InfiniteReverse'> = (props) => {
               )
             }
           >
-            {props.autoUsers.data.map((user) => (
+            {props.autoUsers.map((user) => (
               <li key={user.id}>Auto {user.name}</li>
             ))}
           </InfiniteScroll>

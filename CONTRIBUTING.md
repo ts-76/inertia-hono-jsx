@@ -27,6 +27,8 @@ Before opening a pull request:
 
 - Keep the scope focused on one bug fix, feature, or documentation change.
 - Run `pnpm build`.
+- Run `pnpm test:ssr`, `pnpm test:typecheck`, and `pnpm test:browser` for adapter changes.
+  Install Chromium first with `pnpm exec playwright install chromium`.
 - Update documentation when behavior, public APIs, or setup steps change.
 - Include a clear summary of the behavior change and the validation you ran.
 

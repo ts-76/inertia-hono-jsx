@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        hono: ['4.12.20', '4.13.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm add -D hono@${{ matrix.hono }}
+      - run: pnpm test:ssr
+      - run: pnpm test:typecheck
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:browser
+      - name: Verify sample with package declarations
+        if: matrix.hono == '4.13.13'
+        run: |
+          pnpm --dir sample install --ignore-workspace --frozen-lockfile
+          pnpm --dir sample exec tsc --noEmit
+          pnpm --dir sample build
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-traces-hono-${{ matrix.hono }}
+          path: test-results/
+          retention-days: 7

@@ -2,7 +2,6 @@ import {
   createHeadManager,
   router,
   type Page,
-  type PageHandler,
   type PageProps,
 } from '@inertiajs/core'
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'hono/jsx'
@@ -12,11 +11,7 @@ import PageContext from './PageContext'
 import renderWithLayouts from './renderWithLayouts'
 import type { InertiaAppProps, ResolvedComponent } from './types'
 
-let currentIsInitialPage = true
 let routerIsInitialized = false
-let swapComponent: PageHandler<ResolvedComponent> = async () => {
-  currentIsInitialPage = false
-}
 
 type CurrentPage = {
   component: ResolvedComponent | null
@@ -54,11 +49,21 @@ export default function App<SharedProps extends PageProps = PageProps>({
 
   const dynamicLayoutProps = useSyncExternalStore(store.subscribe, store.get, () => emptySnapshot)
 
-  if (!routerIsInitialized) {
+  if (typeof window !== 'undefined' && !routerIsInitialized) {
     router.init<ResolvedComponent>({
       initialPage,
       resolveComponent: resolveComponent!,
-      swapComponent: async (args) => swapComponent(args),
+      swapComponent: async ({ component, page, preserveState }) => {
+        if (!preserveState) {
+          resetLayoutProps()
+        }
+
+        setCurrent((current) => ({
+          component,
+          page,
+          key: preserveState ? current.key : Date.now(),
+        }))
+      },
       onFlash: (flash) => {
         setCurrent((current) => ({
           ...current,
@@ -71,24 +76,7 @@ export default function App<SharedProps extends PageProps = PageProps>({
   }
 
   useEffect(() => {
-    swapComponent = async ({ component, page, preserveState }) => {
-      if (currentIsInitialPage) {
-        currentIsInitialPage = false
-        return
-      }
-
-      if (!preserveState) {
-        resetLayoutProps()
-      }
-
-      setCurrent((current) => ({
-        component,
-        page,
-        key: preserveState ? current.key : Date.now(),
-      }))
-    }
-
-    router.on('navigate', () => headManager.forceUpdate())
+    return router.on('navigate', () => headManager.forceUpdate())
   }, [])
 
   const Component = current.component

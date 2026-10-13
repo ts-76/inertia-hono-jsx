@@ -26,8 +26,8 @@ type RegisteredPageProps<Name extends string> = Extract<RenderOutput<RegisteredA
 }
   ? Props
   : never
-type HonoRegisteredPageProps<Name extends string> = Name extends RegistryPageName
-  ? HonoPageProps<Name & RegisteredPageName>
+type HonoRegisteredPageProps<Name extends string> = Name extends RegisteredPageName
+  ? HonoPageProps<Name>
   : never
 type RegistryPageProps<Name extends string> = Name extends keyof InertiaPages ? InertiaPages[Name] : never
 
